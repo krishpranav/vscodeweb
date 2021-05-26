@@ -12,4 +12,9 @@ if (!fs.existsSync("vscode")) {
     child_process.execSync("git clone https://github.com/microsoft/vscode.git", {
       stdio: "inherit",
     });
-  }
+}
+process.chdir("vscode");
+
+child_process.execSync(`git checkout -q ${vscodeVersion}`, {
+    stdio: "inherit",
+});
