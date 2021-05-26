@@ -27,3 +27,19 @@ fs.copyFileSync(
     "../workbench.ts",
     "src/vs/code/browser/workbench/workbench.ts"
 );
+
+const gulpfilePath = "./build/gulpfile.vscode.js";
+let gulpfile = fs.readFileSync(gulpfilePath, { encoding: "utf-8", flag: "r"});
+
+
+gulpfile = gulpfile
+  .replace(
+    /vs\/workbench\/workbench.desktop.main/g,
+    "vs/workbench/workbench.web.api"
+  )
+  .replace(
+    /buildfile.workbenchDesktop/g,
+    "buildfile.workbenchWeb,buildfile.keyboardMaps"
+  );
+
+fs.writeFileSync(gulpfilePath, gulpfile);
