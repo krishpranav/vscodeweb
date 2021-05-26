@@ -1,4 +1,3 @@
-// const values
 const process = require("process");
 const child_process = require("child_process");
 const fs = require("fs");
@@ -6,31 +5,29 @@ const fse = require("fs-extra");
 const glob = require("glob");
 const rmdir = require('rimraf');
 
-const vscodeVersion = "1.56.0"
+const vscodeVersion = "1.56.0";
 
 if (!fs.existsSync("vscode")) {
-    child_process.execSync("git clone https://github.com/microsoft/vscode.git", {
-      stdio: "inherit",
-    });
+  child_process.execSync("git clone https://github.com/microsoft/vscode.git", {
+    stdio: "inherit",
+  });
 }
 process.chdir("vscode");
 
 child_process.execSync(`git checkout -q ${vscodeVersion}`, {
-    stdio: "inherit",
+  stdio: "inherit",
 });
-
 if (!fs.existsSync("node_modules")) {
-    child_process.execSync("yarn", { stdio: "inherit" });
+  child_process.execSync("yarn", { stdio: "inherit" });
 }
 
 fs.copyFileSync(
-    "../workbench.ts",
-    "src/vs/code/browser/workbench/workbench.ts"
+  "../workbench.ts",
+  "src/vs/code/browser/workbench/workbench.ts"
 );
 
 const gulpfilePath = "./build/gulpfile.vscode.js";
-let gulpfile = fs.readFileSync(gulpfilePath, { encoding: "utf-8", flag: "r"});
-
+let gulpfile = fs.readFileSync(gulpfilePath, { encoding: "utf8", flag: "r" });
 
 gulpfile = gulpfile
   .replace(
@@ -43,3 +40,64 @@ gulpfile = gulpfile
   );
 
 fs.writeFileSync(gulpfilePath, gulpfile);
+
+// Compile
+child_process.execSync("yarn gulp compile-build", { stdio: "inherit" });
+child_process.execSync("yarn gulp minify-vscode", { stdio: "inherit" });
+child_process.execSync("yarn compile-web", { stdio: "inherit" });
+
+// Remove maps
+const mapFiles = glob.sync("out-vscode-min/**/*.js.map", {});
+mapFiles.forEach((mapFile) => {
+  fs.unlinkSync(mapFile);
+});
+
+// Extract compiled files
+if (fs.existsSync("../dist")) {
+  fs.rmdirSync("../dist", { recursive: true });
+}
+fs.mkdirSync("../dist");
+fse.copySync("out-vscode-min", "../dist/vscode");
+
+const extensionNM = glob.sync("extensions/**/node_modules", {});
+extensionNM.forEach((modules) => {
+  rmdir.sync(modules, { recursive: true });
+});
+fse.copySync("extensions", "../dist/extensions");
+
+// Add built in extensions
+const extensions = [];
+
+const extensionsFolderPath = "extensions";
+const extensionsContent = fs.readdirSync(extensionsFolderPath);
+for (const extension of extensionsContent) {
+  const extensionPath = `${extensionsFolderPath}/${extension}`;
+  if (fs.statSync(extensionPath).isDirectory()) {
+    const extensionPackagePath = `${extensionPath}/package.json`;
+    const extensionPackageNLSPath = `${extensionPath}/package.nls.json`;
+
+    if (!fs.existsSync(extensionPackagePath)) {
+      continue;
+    }
+
+    const packageJSON = JSON.parse(fs.readFileSync(extensionPackagePath));
+    let packageNLS = null;
+
+    if (fs.existsSync(extensionPackageNLSPath)) {
+      packageNLS = JSON.parse(fs.readFileSync(extensionPackageNLSPath));
+    }
+  
+    extensions.push({
+      packageJSON,
+      extensionPath: extension,
+      packageNLS
+    });
+  }
+}
+
+const extensionsVar =
+  "var extensions =" + JSON.stringify(extensions, { space: "\t", quote: "" });
+
+fs.writeFileSync("../dist/extensions.js", extensionsVar);
+
+
