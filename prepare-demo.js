@@ -6,3 +6,7 @@ if (fs.existsSync("./demo/dist")) {
     fs.rmdirSync("./demo/dist", { recursive: true });
   }
   
+if (fs.existsSync("./demo/lib")) {
+    fs.rmdirSync("./demo/lib", { recursive: true });
+}
+  
