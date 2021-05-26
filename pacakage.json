@@ -1,0 +1,32 @@
+{
+    "name": "vscodeweb",
+    "version": "1.56.0",
+    "description": "vscode web version made in javascript, typescript",
+    "files": ["dist/*"],
+    "scripts": {
+      "build": "node build.js",
+      "prepare-demo": "node prepare-demo.js",
+      "demo": "node ./demo/http.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/krishpranav/vscodeweb.git"
+    },
+    "author": "Felix B",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/krishpranav/vscodeweb/issues"
+    },
+    "homepage": "https://github.com/krishpranav/vscodeweb#readme",
+    "devDependencies": {
+      "express": "^4.17.1",
+      "fs-extra": "^9.0.1",
+      "glob": "^7.1.6",
+      "rimraf": "^3.0.2",
+      "semver-umd": "^5.5.7",
+      "vscode-oniguruma": "^1.4.0",
+      "vscode-textmate": "^5.2.0"
+    },
+    "dependencies": {}
+  }
+  
