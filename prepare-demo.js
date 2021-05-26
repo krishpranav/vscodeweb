@@ -24,3 +24,7 @@ child_process.execSync('yarn', {stdio: 'inherit'});
 child_process.execSync('yarn compile', {stdio: 'inherit'});
 
 process.chdir('../../../..');
+
+const packageJSON = fs.readFileSync(
+    "./demo/dist/extensions/vscode-web-playground/package.json"
+  );
