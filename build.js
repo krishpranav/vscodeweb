@@ -7,3 +7,9 @@ const glob = require("glob");
 const rmdir = require('rimraf');
 
 const vscodeVersion = "1.56.0"
+
+if (!fs.existsSync("vscode")) {
+    child_process.execSync("git clone https://github.com/microsoft/vscode.git", {
+      stdio: "inherit",
+    });
+  }
