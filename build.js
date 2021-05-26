@@ -18,3 +18,12 @@ process.chdir("vscode");
 child_process.execSync(`git checkout -q ${vscodeVersion}`, {
     stdio: "inherit",
 });
+
+if (!fs.existsSync("node_modules")) {
+    child_process.execSync("yarn", { stdio: "inherit" });
+}
+
+fs.copyFileSync(
+    "../workbench.ts",
+    "src/vs/code/browser/workbench/workbench.ts"
+);
